@@ -101,7 +101,7 @@ class DBH
 
     }
 
-    string[][] selectall_arrayref(string query, string[] params)
+    string[][] selectall(string query, string[] params)
     {
         if(this.do_debug) {
             writeln(query, params);
@@ -109,10 +109,10 @@ class DBH
 
         PGresult* res = this.exec_with_params(query, params);
 
-        return this.fetchall_arrayref(res);
+        return this.fetchall(res);
     }
 
-    string[][] selectall_arrayref(string query)
+    string[][] selectall(string query)
     {
         if(this.do_debug) {
             writeln(query);
@@ -120,10 +120,10 @@ class DBH
 
         PGresult* res = this.query(query);
 
-        return this.fetchall_arrayref(res);
+        return this.fetchall(res);
     }
 
-    string[][] fetchall_arrayref(PGresult* res) {
+    string[][] fetchall(PGresult* res) {
         ResultColumn[] columns_info = columns_info_from_result(res);
 
         string[][] all_rows;
@@ -147,7 +147,7 @@ class DBH
 
     // https://www.postgresql.org/docs/9.5/static/libpq-example.html
     // Example 31-3. libpq Example Program 3
-    string[string][] selectall_hashref(string query, string[] params)
+    string[string][] selectall_assoc(string query, string[] params)
     {
 
         if(this.do_debug) {
@@ -156,7 +156,7 @@ class DBH
 
         PGresult* res = this.exec_with_params(query, params);
 
-        return this.fetchall_hashref(res);
+        return this.fetchall_assoc(res);
     }
 
     PGresult* exec_with_params(string query, string[] params) {
@@ -208,7 +208,7 @@ class DBH
         return res;
     }
 
-    string[string][] selectall_hashref(string query) {
+    string[string][] selectall_assoc(string query) {
 
         if(this.do_debug) {
             writeln(query);
@@ -216,10 +216,10 @@ class DBH
 
         auto res = this.query(query);
 
-        return this.fetchall_hashref(res);
+        return this.fetchall_assoc(res);
     }
 
-    string[string][] fetchall_hashref(PGresult* res) {
+    string[string][] fetchall_assoc(PGresult* res) {
         ResultColumn[] columns_info = columns_info_from_result(res);
 
         string[string][] all_rows;
@@ -291,7 +291,7 @@ class DBH
         write_debug("DEBUG: " ~ query_debug);
         auto sth = this.prepare(query);
         sth.execute(values);
-        auto result = sth.fetchall_arrayref();
+        auto result = sth.fetchall();
         return result[0][0];
     }
 
@@ -312,7 +312,7 @@ class DBH
     //    write_debug(query);
     //    auto sth = this.prepare(query);
     //    sth.execute(values);
-    //    return sth.fetchall_arrayref();
+    //    return sth.fetchall();
     //}
 
 

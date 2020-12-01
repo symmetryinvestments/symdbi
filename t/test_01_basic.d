@@ -17,12 +17,45 @@ void main() {
     tap.verbose(true);
     tap.enable_debugging();
 
+    string host;
+    string port;
+    string db_name;
+    string user;
+    string password;
+
+    {
+        import std.process: environment;
+        import std.stdio: stderr, writeln;
+        import std.array: split;
+        // dsn: data source name, standard name in some subcultures of programmers
+        auto dsn_env = environment.get("TEST_SYMDBI_DSN");
+        if (dsn_env is null) {
+            stderr.writeln("TEST_SYMDBI_DSN environment variable not found");
+            tap.skip("No DSN found in environment: set TEST_SYMDBI_DNS to run the tests");
+            return; // NOTHING to do, giving up
+        }
+
+        auto dsn_parts = dsn_env.split(" ");
+        host = dsn_parts[0];
+        port = dsn_parts[1];
+        db_name = dsn_parts[2];
+        user = dsn_parts[3];
+        password = dsn_parts[4];
+    }
+
+    // example TEST_SYMDBI_DSN
+    // export TEST_SYMDBI_DSN="localhost 5432 test_db test_user asdf1234#"
     dsn conn_info = new dsn([
-        "host": "localhost",
-        "port": "5432",
-        "user": "test_user",
-        "password": "asdf1234#",
-        "dbname":"test_db",
+        "host": host,
+        "port": port,
+        "dbname": db_name,
+        "user": user,
+        "password": password
+        // "host": "localhost",
+        // "port": "5432",
+        // "user": "test_user",
+        // "password": "asdf1234#",
+        // "dbname":"test_db",
     ]);
 
     symdbi.util.write_debug(conn_info.connection_string());
@@ -39,23 +72,23 @@ void main() {
     tap.ok( delegate bool() {
             STH sth = dbh.prepare("select * from items");
             sth.execute([]);
-            string[string][] result = sth.fetchall_hashref();
+            string[string][] result = sth.fetchall_assoc();
             import std.stdio: writeln;
             writeln(result);
             tap.do_debug( symdbi.util.dumper(result) );
             return true;
         },
-        "fetchall_arrayref"
+        "fetchall"
     );
 
     tap.ok( delegate bool() {
             STH sth = dbh.prepare("select * from items where priority=$1");
             sth.execute(["1"]);
-            string[string][] result = sth.fetchall_hashref();
+            string[string][] result = sth.fetchall_assoc();
             tap.do_debug( symdbi.util.dumper(result) );
             return true;
         },
-        "prepared statements with string params fetchall_arrayref"
+        "prepared statements with string params fetchall_assoc"
     );
 
     tap.ok( delegate bool() {
@@ -63,7 +96,7 @@ void main() {
                 "select * from items where priority=$1 and title=$2"
             );
             sth.execute(["2", "second"]);
-            string[string][] result = sth.fetchall_hashref();
+            string[string][] result = sth.fetchall_assoc();
             tap.do_debug( symdbi.util.dumper(result) );
             return true;
         },
@@ -71,26 +104,26 @@ void main() {
     );
 
     tap.ok( delegate bool () {
-            auto result = dbh.selectall_arrayref(
+            auto result = dbh.selectall(
                 "select * from items where priority=2"
             );
             writeln( to!string( result ) );
             return true;
         },
-        "plain query selectall_arrayref"
+        "plain query selectall"
     );
 
     tap.ok( delegate bool () {
             string query = "select * from items";
-            string[string][] res_assoc_array = dbh.selectall_hashref(query);
+            string[string][] res_assoc_array = dbh.selectall_assoc(query);
             tap.do_debug( symdbi.util.dumper(res_assoc_array) );
             return true;
         },
-        "plain query selectall_hashref"
+        "plain query selectall_assoc"
     );
 
     tap.ok( delegate bool () {
-            string[string][] res_assoc_array_new = dbh.selectall_hashref(
+            string[string][] res_assoc_array_new = dbh.selectall_assoc(
                 "select * from items where title = $1",
                 ["first"]
             );
@@ -101,7 +134,7 @@ void main() {
     );
 
     tap.ok( delegate bool () {
-            string[string][] res_assoc_array = dbh.selectall_hashref(
+            string[string][] res_assoc_array = dbh.selectall_assoc(
                 "select * from items where title = $1 and priority = $2",
                 ["first", "1" ]
             );
@@ -112,7 +145,7 @@ void main() {
     );
 
     tap.ok( delegate bool () {
-            string[string][] res_assoc_array = dbh.selectall_hashref(
+            string[string][] res_assoc_array = dbh.selectall_assoc(
                 "select * from items where updated_tm <= $1", ["2016-12-27"]
             );
 /*
@@ -147,7 +180,7 @@ void main() {
     );
 
     if (insert_success) {
-        string[string][] res_assoc_array = dbh.selectall_hashref("select * from items where id = $1", [auto_pk_value]);
+        string[string][] res_assoc_array = dbh.selectall_assoc("select * from items where id = $1", [auto_pk_value]);
         writeln(symdbi.util.dumper(res_assoc_array));
         tap.ok(true,"TODO selecting after insert");
     }

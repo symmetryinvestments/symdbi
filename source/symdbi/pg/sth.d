@@ -75,19 +75,19 @@ class STH
         return true;
     }
 
-    string[][] fetchall_arrayref() {
-        return this.dbh.fetchall_arrayref(this.res);
+    string[][] fetchall() {
+        return this.dbh.fetchall(this.res);
     }
 
-    string[string][] fetchall_hashref() {
-        return this.dbh.fetchall_hashref(this.res);
+    string[string][] fetchall_assoc() {
+        return this.dbh.fetchall_assoc(this.res);
     }
 
-    string[] fetchrow_arrayref() {
+    string[] fetchrow() {
         return [ "mock"];
     }
 
-    string[string] fetchrow_hashref() {
+    string[string] fetchrow() {
         return["mocked_key":"mocked_value"];
     }
 }
