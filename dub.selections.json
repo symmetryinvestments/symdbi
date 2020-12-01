@@ -1,0 +1,8 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"derelict-pq": "2.2.0",
+		"derelict-util": "2.0.6",
+		"zug-tap": "0.2.1"
+	}
+}

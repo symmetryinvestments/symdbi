@@ -1,0 +1,4 @@
+-e '/usr/bin/dub --single'
+--ext '.d'
+
+

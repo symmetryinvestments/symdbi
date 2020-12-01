@@ -1,0 +1,14 @@
+{
+    "name": "symdbi",
+    "authors": [
+        "Emil Nicolaie Perhinschi"
+    ],
+    "description": "easy to use wrapper over derelict-pq",
+    "copyright": "Copyright © 2020, Symmetry Investments",
+    "license": "proprietary",
+    "dependencies": {
+        "derelict-pq": "*",
+        "zug-tap": "*"
+    }
+}
+
