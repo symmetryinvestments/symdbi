@@ -38,8 +38,8 @@ class DBH
             OID
         );
 
-        write_debug("~~~~~~~~ " ~ to!string(PQresultStatus(prep_res)));
-        write_debug("~~~~~~~~ " ~ to!string(PQresultErrorMessage(prep_res)));
+        write_debug("PQresultStatus " ~ to!string(PQresultStatus(prep_res)));
+        write_debug("PQresultErrorMessage " ~ to!string(PQresultErrorMessage(prep_res)));
 
         return new STH(query, this);
     }
@@ -242,7 +242,7 @@ class DBH
     }
 
     // queries which don't return data
-    void do_command(string query)
+    bool do_command(string query)
     {
 
         if(this.do_debug)
@@ -256,10 +256,11 @@ class DBH
             stderr.writef(
                 "Command failed: %s", to!string( PQerrorMessage(this.handle) ));
             PQclear(res);
-            exit(-1);
+            return false;
         }
 
         write_debug("TODO: finish do_command ... if it is really needed");
+        return true;
     }
 
 

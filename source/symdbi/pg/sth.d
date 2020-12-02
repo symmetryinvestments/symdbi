@@ -33,6 +33,7 @@ class STH
         this.res = res;
     }
 
+    // this expects a result to be returned
     bool execute(string[] params) {
 
         const(char)*[] params_pq;
@@ -51,27 +52,25 @@ class STH
             }
         }
 
-        write_debug("TODO give real names to these vars");
-        const(int)* const_int_pointer = null;
-
+        const(int)* param_length = null;
+        const(int)* param_formats = null;
         this.res = PQexecPrepared(
             this.dbh.get_handle(), "",
             cast(int) params.length,
             params_pq.ptr,
-            const_int_pointer,
-            const_int_pointer,
+            param_length,
+            param_formats,
             0
         );
 
         if (PQresultStatus(res) != PGRES_TUPLES_OK)
         {
             stderr.writef(
-                "Query failed: %s", to!string( PQerrorMessage(this.dbh.handle) )
+                ">>> Query failed: %s\n", to!string( PQerrorMessage(this.dbh.handle) )
             );
             PQclear(res);
-            exit(-1);
+            return false;
         }
-
         return true;
     }
 

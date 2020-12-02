@@ -23,20 +23,20 @@ string dumper(string[string] data) {
     return "{\n" ~ result.join(",\n") ~ "\n}";
 }
 
-unittest {
-    string expected = "{
-  b => 1
-  a => 1
-}
+// unittest {
+//     string expected = "{
+//   b => 1
+//   a => 1
+// }
 
-{
-  b => 2
-  a => 2
-}
-";
-    string dumped = dump_array_of_hashes([["a":"1","b": "1"], ["a": "2", "b":"2"]]);
-    assert(expected == dumped);
-}
+// {
+//   b => 2
+//   a => 2
+// }
+// ";
+//     string dumped = dump_array_of_hashes([["a":"1","b": "1"], ["a": "2", "b":"2"]]);
+//     assert(expected == dumped);
+// }
 
 
 // TODO: this dumps the names but not the types, instead puts "string"
