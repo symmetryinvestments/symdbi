@@ -12,10 +12,10 @@ the current API is heavily inspired from https://metacpan.org/pod/DBI
 
 To run the tests under t/ make sure they're executable or run with dub
 
-To run all the tests under t/ install prove from Test::More from CPAN or proved from 
+To run all the tests under t/ install prove from Test::More from CPAN or proved from
   zug-tap and run them in the root of the project
 
-As of now all parameters to use in a query should be strings, all the values returned are strings. Using 
+As of now all parameters to use in a query should be strings (what Julia is doing https://invenia.github.io/LibPQ.jl/dev/pages/type-conversions/ ), all the values returned are strings. Using
 other types is TODO.
 
 # SYNOPSYS
@@ -34,8 +34,8 @@ dsn conn_info = new dsn([
 STH sth = dbh.prepare("select * from items");
 // all queries should have bound parameters, no interpolation
 sth.execute([]);
-// fetchall* work with the result of prepare, 
-// selectall* do everything inside so you don't have to think about the details 
+// fetchall* work with the result of prepare,
+// selectall* do everything inside so you don't have to think about the details
 string[string][] result = sth.fetchall_assoc();
 
 // example of bound parameters
@@ -65,3 +65,5 @@ string primary_key = "id";
 auto auto_pk_value = dbh.insert(table, primary_key, columns, values);
 
 ```
+
+#

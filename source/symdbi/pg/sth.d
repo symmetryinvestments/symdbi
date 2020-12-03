@@ -35,7 +35,6 @@ class STH
 
     // this expects a result to be returned
     bool execute(string[] params) {
-
         const(char)*[] params_pq;
         foreach (string param; params) {
             params_pq ~= toStringz(param);
@@ -52,10 +51,12 @@ class STH
             }
         }
 
+        const(char)* stmt_name = ""; // TODO allow setting up the statement name
         const(int)* param_length = null;
         const(int)* param_formats = null;
         this.res = PQexecPrepared(
-            this.dbh.get_handle(), "",
+            this.dbh.get_handle(),
+            stmt_name,
             cast(int) params.length,
             params_pq.ptr,
             param_length,
@@ -63,13 +64,9 @@ class STH
             0
         );
 
-        if (PQresultStatus(res) != PGRES_TUPLES_OK)
+        if (PQresultStatus(this.res) != PGRES_TUPLES_OK)
         {
-            stderr.writef(
-                ">>> Query failed: %s\n", to!string( PQerrorMessage(this.dbh.handle) )
-            );
-            PQclear(res);
-            return false;
+            throw new Exception(format!"Query failed: %s"(PQerrorMessage(this.dbh.get_handle).to!string));
         }
         return true;
     }
@@ -82,11 +79,13 @@ class STH
         return this.dbh.fetchall_assoc(this.res);
     }
 
+    /// fetchrow is for queries which should return a single row
+    /// of course you can use it to get the first row of a multirow result and abandon there rest if you so choose
     string[] fetchrow() {
-        return [ "mock"];
+        return this.dbh.fetchall(this.res)[0];
     }
 
-    string[string] fetchrow() {
-        return["mocked_key":"mocked_value"];
+    string[string] fetchrow_assoc() {
+        return this.dbh.fetchall_assoc(this.res)[0];
     }
 }

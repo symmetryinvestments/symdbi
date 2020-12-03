@@ -1,7 +1,8 @@
 \set ON_ERROR_STOP
 
-BEGIN;
+CREATE EXTENSION pgcrypto;
 
+BEGIN;
 create table items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title varchar(128),

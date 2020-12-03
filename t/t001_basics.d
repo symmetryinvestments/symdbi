@@ -67,7 +67,7 @@ void main() {
     // https://dlang.org/library/std/variant/variant_array.html
 
     DBH dbh  = new DBH(conn_info);
-    dbh.debugging(false);
+    dbh.debugging(true);
 
 
     {

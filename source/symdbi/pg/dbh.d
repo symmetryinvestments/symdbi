@@ -38,8 +38,10 @@ class DBH
             OID
         );
 
-        write_debug("PQresultStatus " ~ to!string(PQresultStatus(prep_res)));
-        write_debug("PQresultErrorMessage " ~ to!string(PQresultErrorMessage(prep_res)));
+        if (PQresultStatus(prep_res) != PGRES_COMMAND_OK)
+        {
+            throw new Exception(format!"Query failed: %s"(PQerrorMessage(this.handle).to!string));
+        }
 
         return new STH(query, this);
     }
@@ -83,14 +85,10 @@ class DBH
     // queries which return data
     PGresult* query(string query)
     {
-        PGresult* res = PQexec(this.handle, toStringz( query ) );
+        PGresult* res = PQexec(this.handle, query.toStringz );
         if (PQresultStatus(res) != PGRES_TUPLES_OK)
         {
-            stderr.writef(
-                "Query failed: %s", to!string( PQerrorMessage(this.handle) )
-            );
-            PQclear(res);
-            exit(-1);
+            throw new Exception(format!"Query failed: %s"(PQerrorMessage(this.handle).to!string));
         }
 
         return res;
@@ -198,11 +196,7 @@ class DBH
 
         if (PQresultStatus(res) != PGRES_TUPLES_OK)
         {
-            stderr.writef(
-                "Query failed: %s", to!string( PQerrorMessage(this.handle) )
-            );
-            PQclear(res);
-            exit(-1);
+            throw new Exception(format!"Query failed: %s"(PQerrorMessage(this.handle).to!string));
         }
 
         return res;
@@ -297,7 +291,7 @@ class DBH
     }
 
 
-    // insert in bulk
+    // TODO insert in bulk
     //string[][] insert(int chunk_size, string table_name, string primary_key, string[] columns, string[][] values) {
     //
     //    string[][] placeholders;
@@ -349,6 +343,8 @@ class DBH
         PQfinish( this.handle );
     }
 
+
+    /// the rest of the functions are about how PG is seeing you
     string effective_name()
     {
         return to!string(PQdb(this.handle));
