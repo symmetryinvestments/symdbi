@@ -9,8 +9,6 @@ import symdbi.pg;
 import zug.tap;
 static import symdbi.util;
 
-debug import std.stdio: writeln;
-
 void main() {
 
     auto tap = Tap("Basic tests");
@@ -25,12 +23,10 @@ void main() {
 
     {
         import std.process: environment;
-        import std.stdio: stderr, writeln;
         import std.array: split;
-        // dsn: data source name, standard name in some subcultures of programmers
+        // dsn: data source name, standard meme in some subcultures of programmers
         auto dsn_env = environment.get("TEST_SYMDBI_DSN");
         if (dsn_env is null) {
-            stderr.writeln("TEST_SYMDBI_DSN environment variable not found");
             tap.skip("No DSN found in environment: set TEST_SYMDBI_DNS to run the tests");
             return; // NOTHING to do, giving up
         }
@@ -51,11 +47,6 @@ void main() {
         "dbname": db_name,
         "user": user,
         "password": password
-        // "host": "localhost",
-        // "port": "5432",
-        // "user": "test_user",
-        // "password": "asdf1234#",
-        // "dbname":"test_db",
     ]);
 
     symdbi.util.write_debug(conn_info.connection_string());
@@ -65,9 +56,12 @@ void main() {
     // Error: incompatible types for ((1) : ("a")): 'int' and 'string'
     // Variant[3] test = [1, "a", conn_info];
     // https://dlang.org/library/std/variant/variant_array.html
+    //
+    // TODO: look into sumtype, just added it to dub.json as dependency so I won't forget
+
 
     DBH dbh  = new DBH(conn_info);
-    dbh.debugging(true);
+    dbh.debugging(false);
 
 
     {
@@ -129,7 +123,6 @@ void main() {
         auto sth = dbh.prepare("select title from items order by created_tm");
         sth.execute([]);
         auto result = sth.fetchall();
-        writeln(result);
         tap.ok(result[0][0] == "title first", "first record looks fine");
         tap.ok(result[1][0] == "title second", "second record looks fine");
     }
@@ -144,7 +137,6 @@ void main() {
     {
         string query = "select * from items order by created_tm asc";
         string[string][] result = dbh.selectall_assoc(query);
-        writeln(result);
         tap.ok(result[0]["title"] == "title first", "selectall_assoc result first record title column looks fine");
         tap.ok(result[0]["priority"] == "1", "selectall_assoc result first record priority column looks fine");
         tap.ok(result[1]["title"] == "title second", "selectall_assoc result sercond record title column looks fine");
@@ -192,7 +184,6 @@ void main() {
         string primary_key = "id";
         auto auto_pk_value = dbh.insert(table, primary_key, columns, values);
 
-        symdbi.util.write_debug("############ " ~ auto_pk_value);
         bool insert_success = false;
         if (auto_pk_value) {
             insert_success = true;
@@ -204,7 +195,6 @@ void main() {
 
         if (insert_success) {
             string[string][] res_assoc_array = dbh.selectall_assoc("select * from items where id = $1", [auto_pk_value]);
-            writeln(symdbi.util.dumper(res_assoc_array));
             tap.ok(true,"TODO selecting after insert");
         }
     }
@@ -213,7 +203,6 @@ void main() {
         bool truncated = dbh.do_command("truncate table items");
         tap.ok(truncated, "truncate table items returned true");
         auto result = dbh.selectall("select count(*) from items as total_number");
-        writeln(result);
         tap.ok(result == [["0"]], "table was indeed truncated");
     }
 

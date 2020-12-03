@@ -5,6 +5,7 @@
 	"copyright": "Copyright © 2020, Symmetry Investments",
 	"dependencies": {
 		"derelict-pq": ">=4.0.0-alpha.2 <4.1.0-0",
+		"sumtype": "~>1.0.1",
 		"zug-tap": "~>0.2.2"
 	},
 	"description": "easy to use wrapper over derelict-pq",

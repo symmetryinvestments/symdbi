@@ -79,8 +79,7 @@ class STH
         return this.dbh.fetchall_assoc(this.res);
     }
 
-    /// fetchrow is for queries which should return a single row
-    /// of course you can use it to get the first row of a multirow result and abandon there rest if you so choose
+    /// fetchrow* is for when you want to get the data row by row from the response
     string[] fetchrow() {
         return this.dbh.fetchall(this.res)[0];
     }

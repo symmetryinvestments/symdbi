@@ -283,7 +283,7 @@ class DBH
                 ~ " values (" ~ values.join(", ") ~ ") "
                 ~ " returning " ~ primary_key;
 
-        write_debug("DEBUG: " ~ query_debug);
+        write_debug(query_debug);
         auto sth = this.prepare(query);
         sth.execute(values);
         auto result = sth.fetchall();

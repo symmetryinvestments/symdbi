@@ -14,7 +14,7 @@ shared static this()
     DerelictPQ.load();
 }
 
-//shared static ~this()
-//{
+// shared static ~this()
+// {
 //    stderr.writeln("unloading derelict pq");
-//}
+// }
