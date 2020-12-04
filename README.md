@@ -64,6 +64,8 @@ string[] values = [
 string primary_key = "id";
 auto auto_pk_value = dbh.insert(table, primary_key, columns, values);
 
+// get the rows as a struct
+// see t/t005_struct_return.d
+
 ```
 
-#
