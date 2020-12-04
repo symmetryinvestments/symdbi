@@ -296,24 +296,32 @@ class DBH
     }
 
 
-    // TODO insert in bulk
-    //string[][] insert(int chunk_size, string table_name, string primary_key, string[] columns, string[][] values) {
-    //
-    //    string[][] placeholders;
-    //    int placeholder_count = 1;
-    //    foreach (string value; values) {
-    //        placeholders ~= "$" ~ to!string(placeholder_count);
-    //        placeholder_count++;
-    //    }
-    //    //string placeholders = values.map!(a => "$" ~ to!string(i)).join(",");
-    //
-    //    string query = "insert into " ~ table_name ~ " (" ~ columns.join(",") ~ ", some,)"
-    //        ~ " values (" ~ placeholders.join(", ") ~ ") returning " ~ primary_key;
-    //    write_debug(query);
-    //    auto sth = this.prepare(query);
-    //    sth.execute(values);
-    //    return sth.fetchall();
-    //}
+    string[][] insert(string table_name, string primary_key, string[string][] data) {
+
+        string[] columns = data[0].keys;
+
+        // $1, $2 etc. is how Postgresql is counting the bound parameters
+        int i = 1;
+
+        string[] placeholders;
+        string[] values;
+        for (int row = 0; row < data.length; row++) {
+            string[] placeholders_for_one_row;
+            for (int column = 0; column < columns.length; column++) {
+                placeholders_for_one_row ~= "$" ~ i.to!string;
+                values ~= data[row][columns[column]];
+                i++;
+            }
+            placeholders ~= "(" ~ placeholders_for_one_row.join(",") ~ ")";
+        }
+
+        string query = "insert into " ~ table_name ~ " (" ~ columns.join(",") ~ " )"
+            ~ " values " ~ placeholders.join(", ") ~ " returning " ~ primary_key;
+        write_debug(query);
+        auto sth = this.prepare(query);
+        sth.execute(values);
+        return sth.fetchall();
+    }
 
 
     void expect_text_result() {
