@@ -41,14 +41,15 @@ void main() {
     // add some data
     {
         string table = "items";
-        string[] columns = [
-            "title", "description", "priority","updated_tm", "created_tm"
-        ];
-        string[] values = [
-            "title inserted 1", "desc inserted 1", "1", "NOW()", "NOW()"
+        string[string] data = [
+            "title": "title inserted 1"
+            , "description": "desc first"
+            , "priority": "1"
+            , "updated_tm": "NOW()"
+            , "created_tm": "NOW()"
         ];
         string primary_key = "id";
-        auto auto_pk_value = dbh.insert(table, primary_key, columns, values);
+        auto auto_pk_value = dbh.insert(table, primary_key, data);
 
         bool insert_success = false;
         if (auto_pk_value) {
@@ -114,6 +115,8 @@ void main() {
         tap.ok(count == [["0"]], "table was indeed truncated");
     }
 
+    tap.done_testing();
+    tap.report();
 }
 
 // deliberately I made the properties have different names to make it obvious

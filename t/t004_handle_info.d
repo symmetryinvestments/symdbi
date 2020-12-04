@@ -55,4 +55,6 @@ void main() {
     tap.ok(dbh.effective_user == user, "effective user matches");
     tap.ok(dbh.effective_pass == password, "effective password matches");
     tap.ok(dbh.effective_options == "" , "no options as expected");
+    tap.done_testing();
+    tap.report();
 }

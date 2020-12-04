@@ -68,14 +68,11 @@ void main() {
 
     {
         string table = "items";
-        string[] columns = [
-            "title", "description", "priority","updated_tm", "created_tm"
-        ];
-        string[] values = [
-            "title first", "desc first", "1", "NOW()", "NOW()"
+        string[string] data = [
+            "title": "title first", "description": "desc first", "priority": "1","updated_tm": "NOW()", "created_tm": "NOW()"
         ];
         string primary_key = "id";
-        auto auto_pk_value = dbh.insert(table, primary_key, columns, values);
+        auto auto_pk_value = dbh.insert(table, primary_key, data);
         tap.ok(auto_pk_value.length == 36, "length of the primary key is 36");
     }
 
@@ -110,14 +107,11 @@ void main() {
 
     {
         string table = "items";
-        string[] columns = [
-            "title", "description", "priority","updated_tm", "created_tm"
-        ];
-        string[] values = [
-            "title second", "desc second", "2", "NOW()", "NOW()"
+        string[string] data = [
+            "title": "title second", "description": "desc second", "priority": "2","updated_tm": "NOW()", "created_tm": "NOW()"
         ];
         string primary_key = "id";
-        auto auto_pk_value = dbh.insert(table, primary_key, columns, values);
+        auto auto_pk_value = dbh.insert(table, primary_key, data);
         tap.ok(auto_pk_value.length == 36, "length of the primary key is 36");
     }
 
@@ -177,15 +171,11 @@ void main() {
     */
     {
         string table = "items";
-        string[] columns = [
-            "title", "description", "priority","updated_tm", "created_tm"
-        ];
-        string[] values = [
-            "tile inserted 1", "desc inserted 1", "1", "NOW()", "NOW()"
+        string[string] data = [
+            "title": "title inserted 1", "description": "desc inserted 1", "priority": "1","updated_tm": "NOW()", "created_tm": "NOW()"
         ];
         string primary_key = "id";
-        auto auto_pk_value = dbh.insert(table, primary_key, columns, values);
-
+        auto auto_pk_value = dbh.insert(table, primary_key, data);
         bool insert_success = false;
         if (auto_pk_value) {
             insert_success = true;
@@ -207,4 +197,6 @@ void main() {
         auto result = dbh.selectall("select count(*) from items as total_number");
         tap.ok(result == [["0"]], "table was indeed truncated");
     }
+    tap.done_testing();
+    tap.report();
 }

@@ -262,15 +262,18 @@ class DBH
     string insert(
             string table_name,
             string primary_key,
-            string[] columns,
-            string[] values
+            string[string] data,
         ) {
+        import std.array: array;
+
 
         string[] placeholders;
-        int placeholder_count = 1;
-        foreach (string value; values) {
-            placeholders ~= "$" ~ to!string(placeholder_count);
-            placeholder_count++;
+        string[] columns = data.keys;
+        // not relying on the values being ordered same as the columns
+        string[] values = columns.map!(column => data[column]).array;
+        // $1, $2 etc. is how Postgresql is counting the bound parameters
+        for ( int i = 1; i <= columns.length; i++ ) {
+            placeholders ~= "$" ~ i.to!string;
         }
 
         string query =
@@ -278,13 +281,14 @@ class DBH
                 ~ " (" ~ columns.join(",") ~ ")"
                 ~ " values (" ~ placeholders.join(", ") ~ ") "
                 ~ " returning " ~ primary_key;
+
         string query_debug =
             "insert into " ~ table_name
                 ~ " (" ~ columns.join(",") ~ ")"
                 ~ " values (" ~ values.join(", ") ~ ") "
                 ~ " returning " ~ primary_key;
-
         write_debug(query_debug);
+
         auto sth = this.prepare(query);
         sth.execute(values);
         auto result = sth.fetchall();
