@@ -25,6 +25,8 @@ void main() {
         import std.process: environment;
         import std.array: split;
         // dsn: data source name, standard meme in some subcultures of programmers
+        // set up DSN
+        // export TEST_SYMDBI_DSN="localhost 5432 test_db test_user asdf1234#"
         auto dsn_env = environment.get("TEST_SYMDBI_DSN");
         if (dsn_env is null) {
             tap.skip("No DSN found in environment: set TEST_SYMDBI_DNS to run the tests");
@@ -205,5 +207,4 @@ void main() {
         auto result = dbh.selectall("select count(*) from items as total_number");
         tap.ok(result == [["0"]], "table was indeed truncated");
     }
-
 }

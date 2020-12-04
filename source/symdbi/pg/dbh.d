@@ -71,14 +71,15 @@ class DBH
         int number_of_columns = PQnfields(res);
         ResultColumn[] columns_info;
         ResultColumn row;
-        for (int column_no = 0; column_no < number_of_columns; column_no++)
-        {
+
+        for (int column_no = 0; column_no < number_of_columns; column_no++) {
             row.name = to!string(PQfname(res, column_no));
             row.format = to!int( PQfformat(res, column_no));
             row.type = to!int( PQftype(res, column_no) );
             row.size = to!int(PQfsize(res, column_no) );
             columns_info ~= row;
         }
+
         return columns_info;
     }
 
@@ -126,7 +127,7 @@ class DBH
 
         string[][] all_rows;
 
-        void delegate(PGresult*, int) callback = (PGresult* db_res, int row_no){
+        void delegate(PGresult*, int) callback = (PGresult* db_res, int row_no) {
             string[] row_info;
 
             for (int col_no = 0; col_no < columns_info.length; col_no++) {
@@ -381,3 +382,50 @@ class DBH
     }
 
 }
+
+T[] select(T)(DBH dbh, string query)
+if (is(T == struct))
+{
+    if(dbh.do_debug) {
+        writeln(query);
+    }
+
+    PGresult* res = dbh.query(query);
+
+    return dbh.fetch!T(res);
+}
+
+T[] fetch(T)(DBH dbh, PGresult* result)
+if (is(T == struct))
+{
+
+    ResultColumn[] columns_info = dbh.columns_info_from_result(result);
+
+    T[] all_rows;
+
+    void delegate(PGresult*, int) callback = (PGresult* db_res, int row_no) {
+
+        // so I won't forget what a two-dimensional array of unsigned bytes means
+        alias raw_field_value = ubyte[];
+        raw_field_value[string] raw_row_data;
+
+        for ( int col_no = 0; col_no < columns_info.length; col_no++ ) {
+
+            string column_name = columns_info[col_no].name;
+
+            const(ubyte)* value_ptr = PQgetvalue(db_res, row_no, col_no);
+            int value_length = PQgetlength(db_res, row_no, col_no);
+            ubyte[] value = cast(ubyte[]) value_ptr[0..value_length];
+
+            raw_row_data[ column_name ] ~= value;
+        }
+
+        T row_struct = T(raw_row_data);
+        all_rows ~= row_struct;
+    };
+
+    dbh.process_result(result, callback);
+
+    return all_rows;
+}
+
