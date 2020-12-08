@@ -1,4 +1,4 @@
--e '/usr/bin/dub --single'
+-e '/usr/bin/env dub --single'
 --ext '.d'
 
 

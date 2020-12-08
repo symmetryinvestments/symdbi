@@ -187,29 +187,31 @@ void main() {
 
         if (insert_success) {
             string[string][] res_assoc_array = dbh.selectall_assoc("select * from items where id = $1", [auto_pk_value]);
-            tap.ok(true,"TODO selecting after insert");
+            tap.ok(res_assoc_array.length == 1, "one row found after insert");
         }
     }
 
     { // insert many rows at once
-
         import std.range: iota;
-
+        // 65535 is the maximum number of bound params
+        int row_count = 65535/2;
         string table = "items";
         string primary_key = "id";
         string[string][] data;
-        foreach(int i; 5.iota) {
+        foreach(int i; row_count.iota) {
             data ~= [
                 "title": "title bulk "~ i.to!string,
                 "description": "description bulk " ~ i.to!string
             ];
         }
         auto result = dbh.insert(table, primary_key, data);
-        tap.ok(result.length == 5, "found 5 primary keys in the result as expected");
+        tap.ok(result.length == row_count, "found the expected number of primary keys in the result as expected");
         // [0][0]: the result is an array of arrays TODO maybe change this
         tap.ok(result[0][0].length == 36, "the first element in hte result has 36 characters so it looks like an uuid, as expected");
-    }
 
+        string[][] res = dbh.selectall("select * from items where description like 'description bulk%'");
+        tap.ok(res.length == row_count, "found the expected number of records for the like query");
+    }
 
     {
         // cleanup
