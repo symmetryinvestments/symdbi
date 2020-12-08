@@ -23,16 +23,6 @@ class STH
         this.dbh = dbh;
     }
 
-    PGresult* result ()
-    {
-        return this.res;
-    }
-
-    void result (PGresult* res)
-    {
-        this.res = res;
-    }
-
     // this expects a result to be returned
     bool execute(string[] params) {
         const(char)*[] params_pq;
@@ -64,7 +54,7 @@ class STH
             0
         );
 
-        if (PQresultStatus(this.res) != PGRES_TUPLES_OK)
+        if (PQresultStatus(this.res) != PGRES_TUPLES_OK && PQresultStatus(this.res) != PGRES_COMMAND_OK)
         {
             throw new Exception(format!"Query failed: %s"(PQerrorMessage(this.dbh.get_handle).to!string));
         }

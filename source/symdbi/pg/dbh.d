@@ -440,4 +440,3 @@ if (is(T == struct))
 
     return all_rows;
 }
-
