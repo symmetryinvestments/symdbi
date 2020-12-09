@@ -1,0 +1,4 @@
+# ignore all files except those with .d extension
+*
+!*.d
+
