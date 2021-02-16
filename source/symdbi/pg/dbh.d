@@ -59,6 +59,7 @@ class DBH
                 const(ubyte)* value_ptr = PQgetvalue(res, row_no, col_no);
                 int value_length = PQgetlength(res, row_no, col_no);
                 ubyte[] value = cast(ubyte[]) value_ptr[0..value_length];
+
             }
         }
 
@@ -95,10 +96,10 @@ class DBH
         return res;
     }
 
-    void insert(string query, string[] params)
-    {
+    // void insert(string query, string[] params)
+    // {
 
-    }
+    // }
 
     string[][] selectall(string query, string[] params)
     {
@@ -292,7 +293,12 @@ class DBH
         auto sth = this.prepare(query);
         sth.execute(values);
         auto result = sth.fetchall();
-        return result[0][0];
+
+        // TODO without .dup here values returned in other queries get overwritten ...
+        //   not sure I'm making sense, but aparently at random the value returned from this function
+        //   gets replaced with the value returned in a later call
+        string primary_key_result = result[0][0].dup;
+        return primary_key_result;
     }
 
 
@@ -394,6 +400,48 @@ class DBH
     }
 
 }
+
+// string insert(T)(DBH dbh, string table_name, string primary_key, T data)
+// if (is(T == struct))
+// {
+//     import std.array: array;
+
+//     string[] placeholders;
+//     string[] columns;
+//     const(char)*[] params_pq;
+//     // http://forum.dlang.org/post/gqqpl2$1ujg$1@digitalmars.com
+//     foreach(i, _; data.tupleof) {
+//         // [0..4] is for the length of the name of the data variable
+//         columns ~= data.tupleof[i].stringof[5..$];
+//         params_pq ~=  cast(const(char)*) data.tupleof[i];
+//     }
+//     writeln(columns);
+//     writeln(params_pq);
+
+//     // // $1, $2 etc. is how Postgresql is counting the bound parameters
+//     for ( int i = 1; i <= columns.length; i++ ) {
+//         placeholders ~= "$" ~ i.to!string;
+//     }
+//     writeln(placeholders);
+//     string query =
+//         "insert into " ~ table_name
+//             ~ " (" ~ columns.join(",") ~ ")"
+//             ~ " values (" ~ placeholders.join(", ") ~ ") "
+//             ~ " returning " ~ primary_key;
+
+//     string query_debug =
+//         "insert into " ~ table_name
+//             ~ " (" ~ columns.join(",") ~ ")"
+//             ~ " values (###) "
+//             ~ " returning " ~ primary_key;
+//     write_debug(query_debug);
+
+//     auto sth = dbh.prepare(query);
+//     sth.pq_execute(params_pq);
+//     auto result = sth.fetchall();
+//     return result[0][0];
+// }
+
 
 T[] select(T)(DBH dbh, string query)
 if (is(T == struct))

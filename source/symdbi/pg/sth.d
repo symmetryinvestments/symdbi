@@ -27,7 +27,11 @@ class STH
     bool execute(string[] params) {
         const(char)*[] params_pq;
         foreach (string param; params) {
-            params_pq ~= toStringz(param);
+            if (param.length == 0) {
+                params_pq ~= null;
+            } else {
+                params_pq ~= toStringz(param);
+            }
         }
 
         if (!this.param_no) {
@@ -41,13 +45,18 @@ class STH
             }
         }
 
+        return this.pq_execute(params_pq);
+    }
+
+    bool pq_execute(const(char)*[] params_pq) {
+
         const(char)* stmt_name = ""; // TODO allow setting up the statement name
         const(int)* param_length = null;
         const(int)* param_formats = null;
         this.res = PQexecPrepared(
             this.dbh.get_handle(),
             stmt_name,
-            cast(int) params.length,
+            cast(int) params_pq.length,
             params_pq.ptr,
             param_length,
             param_formats,
